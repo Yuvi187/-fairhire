@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FairHire — AI-Powered Bias-Free Hiring</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+
+<style>
+:root {
+  --bg0:#020408; --bg1:#060b14; --bg2:#0a1020;
+  --glass:rgba(255,255,255,0.04); --glass2:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --cyan:#00d4ff; --teal:#00b4d8; --indigo:#6366f1; --violet:#8b5cf6; --pink:#ec4899;
+  --amber:#f59e0b; --green:#10b981; --red:#f43f5e;
+  --text:#f0f4ff; --muted:#5a6a8a; --sub:#2e3a52;
+  --r:16px; --rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;background:var(--bg0);color:var(--text);min-height:100vh;overflow-x:hidden;}
+::selection{background:rgba(0,212,255,0.2);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* AURORA */
+#aurora{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.abl{position:absolute;border-radius:50%;filter:blur(90px);animation:adr 20s ease-in-out infinite alternate;}
+@keyframes adr{0%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-50px) scale(1.08);}100%{transform:translate(-20px,40px) scale(.94);}}
+#particles{position:fixed;inset:0;z-index:1;pointer-events:none;}
+#root{position:relative;z-index:2;}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:200;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(2,4,8,0.75);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;background:linear-gradient(135deg,var(--cyan),var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;letter-spacing:-.025em;}
+.logo em{background:linear-gradient(135deg,var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal;}
+.nav-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:500;transition:all .2s;position:relative;overflow:hidden;white-space:nowrap;}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan),var(--teal));color:#000;font-weight:700;padding:10px 22px;border-radius:50px;font-size:13.5px;box-shadow:0 4px 22px rgba(0,212,255,.28);}
+.btn-cyan:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,212,255,.42);}
+.btn-indigo{background:linear-gradient(135deg,var(--indigo),var(--violet));color:#fff;font-weight:600;padding:11px 26px;border-radius:50px;font-size:14px;box-shadow:0 4px 24px rgba(99,102,241,.3);}
+.btn-indigo:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,.48);}
+.btn-glass{background:var(--glass);border:1px solid var(--border);color:var(--muted);padding:9px 20px;border-radius:50px;font-size:13.5px;backdrop-filter:blur(8px);}
+.btn-glass:hover{border-color:var(--border2);color:var(--text);}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--muted);padding:9px 20px;border-radius:50px;font-size:13.5px;}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan);}
+.btn-danger{background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.25);color:var(--red);padding:5px 12px;border-radius:8px;font-size:12px;}
+.btn-danger:hover{background:rgba(244,63,94,.22);}
+.btn-lg{padding:14px 34px;font-size:16px;}
+.btn-sm{padding:8px 18px;font-size:13px;}
+.btn-xs{padding:5px 13px;font-size:12px;}
+.btn:disabled{opacity:.4;cursor:not-allowed !important;transform:none !important;box-shadow:none !important;}
+.btn:active{transform:scale(.98);}
+
+/* GLASS CARDS */
+.card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(20px);}
+.card-glow{box-shadow:0 0 40px rgba(99,102,241,.15);}
+.card-cyan{border-color:rgba(0,212,255,.13);box-shadow:0 0 40px rgba(0,212,255,.1);}
+
+/* INPUTS */
+.field{margin-bottom:16px;}
+.field label{display:block;margin-bottom:7px;font-size:11.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.inp{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:12px 15px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14.5px;outline:none;transition:border-color .2s,box-shadow .2s,background .2s;}
+.inp:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,212,255,.1);background:rgba(0,212,255,.03);}
+.inp:hover:not(:focus){border-color:var(--border2);}
+.inp::placeholder{color:var(--sub);}
+select.inp option{background:#0a1020;}
+.inp-wrap{position:relative;}
+.inp-wrap .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none;}
+.inp-wrap .inp{padding-left:42px;}
+
+/* UPLOAD ZONE */
+.uzone{border:2px dashed var(--border);border-radius:12px;padding:22px 18px;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;}
+.uzone:hover{border-color:var(--cyan);background:rgba(0,212,255,.03);}
+.uzone.filled{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.04);border-style:solid;}
+.uzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;}
+.uzone-icon{font-size:28px;margin-bottom:8px;}
+.uzone-text{font-size:13px;color:var(--muted);}
+.uzone-text strong{color:var(--cyan);}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.04em;}
+.bg-green{background:rgba(16,185,129,.1);color:var(--green);border:1px solid rgba(16,185,129,.2);}
+.bg-amber{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.2);}
+.bg-red{background:rgba(244,63,94,.1);color:var(--red);border:1px solid rgba(244,63,94,.2);}
+.bg-cyan{background:rgba(0,212,255,.09);color:var(--cyan);border:1px solid rgba(0,212,255,.18);}
+.bg-indigo{background:rgba(99,102,241,.1);color:#a5b4fc;border:1px solid rgba(99,102,241,.2);}
+
+/* PROGRESS */
+.pbar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.pfill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1);}
+
+/* WIZARD */
+.wizard{display:flex;align-items:flex-start;margin-bottom:36px;}
+.wcon{flex:1;height:2px;background:var(--border);margin-top:20px;position:relative;overflow:hidden;}
+.wcon-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--cyan),var(--indigo));transition:width .6s ease;}
+.wstep{display:flex;flex-direction:column;align-items:center;gap:7px;flex-shrink:0;}
+.wdot{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-family:'Unbounded',sans-serif;transition:all .4s;border:2px solid var(--border);}
+.wdot.done{background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green);box-shadow:0 0 20px rgba(16,185,129,.3);}
+.wdot.active{background:rgba(0,212,255,.1);border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 24px rgba(0,212,255,.35);animation:wpulse 2s ease-in-out infinite;}
+.wdot.idle{background:transparent;border-color:var(--sub);color:var(--sub);}
+@keyframes wpulse{0%,100%{box-shadow:0 0 24px rgba(0,212,255,.3);}50%{box-shadow:0 0 36px rgba(0,212,255,.55);}}
+.wlbl{font-size:11px;color:var(--muted);white-space:nowrap;font-weight:500;}
+.wlbl.active{color:var(--cyan);}
+.wlbl.done{color:var(--green);}
+
+/* SECTION LABELS */
+.slbl{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 13px;border-radius:8px;display:inline-flex;align-items:center;gap:7px;margin-bottom:14px;}
+.s-cyan{color:var(--cyan);background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.14);}
+.s-violet{color:#c4b5fd;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.18);}
+.s-amber{color:var(--amber);background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.15);}
+.s-green{color:var(--green);background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.15);}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px;}
+.tbl th{padding:11px 15px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);}
+.tbl td{padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tbody tr{cursor:pointer;transition:background .15s;}
+.tbl tbody tr:hover td{background:rgba(0,212,255,.04);}
+.tbl tbody tr.sel td{background:rgba(0,212,255,.07);}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;z-index:9999;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:500;display:flex;align-items:center;gap:12px;backdrop-filter:blur(20px);animation:toastUp .35s cubic-bezier(.175,.885,.32,1.275);max-width:380px;}
+.t-success{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--green);}
+.t-error{background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);color:var(--red);}
+@keyframes toastUp{from{transform:translateY(20px) scale(.9);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+
+/* SPINNER */
+.sp{width:18px;height:18px;border:2px solid rgba(255,255,255,.2);border-top-color:currentColor;border-radius:50%;animation:spinR .6s linear infinite;}
+@keyframes spinR{to{transform:rotate(360deg);}}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.fu{animation:fadeUp .5s ease both;}
+.fu1{animation-delay:.08s;} .fu2{animation-delay:.16s;} .fu3{animation-delay:.24s;} .fu4{animation-delay:.32s;} .fu5{animation-delay:.40s;}
+@keyframes stIn{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
+.stin{animation:stIn .35s cubic-bezier(.4,0,.2,1) both;}
+@keyframes slideR{from{transform:translateX(36px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.slr{animation:slideR .32s cubic-bezier(.4,0,.2,1) both;}
+
+/* LAYOUT */
+.page{padding:44px 28px;min-height:calc(100vh - 64px);}
+.ctr{max-width:1160px;margin:0 auto;}
+.nrw{max-width:560px;margin:0 auto;}
+.nrw2{max-width:680px;margin:0 auto;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr;}}
+.row{display:flex;align-items:center;}
+.jb{justify-content:space-between;}
+.wrap{flex-wrap:wrap;}
+.col{display:flex;flex-direction:column;}
+.g4p{gap:4px;} .g8{gap:8px;} .g12{gap:12px;} .g16{gap:16px;}
+.mt4{margin-top:4px;} .mt8{margin-top:8px;} .mt12{margin-top:12px;} .mt16{margin-top:16px;} .mt24{margin-top:24px;} .mt32{margin-top:32px;}
+.mb8{margin-bottom:8px;} .mb16{margin-bottom:16px;} .mb24{margin-bottom:24px;} .mb32{margin-bottom:32px;}
+.hdiv{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:20px 0;}
+
+/* HERO */
+.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.18);color:var(--cyan);letter-spacing:.06em;margin-bottom:28px;}
+.htag-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.h1{font-family:'Unbounded',sans-serif;font-size:clamp(36px,6vw,74px);font-weight:900;line-height:1.02;letter-spacing:-.035em;margin-bottom:22px;}
+.hgrad{background:linear-gradient(135deg,#fff 15%,var(--cyan) 50%,var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hsub{font-size:18px;color:var(--muted);line-height:1.78;max-width:560px;margin-bottom:36px;}
+.grid-bg{position:absolute;inset:0;opacity:.03;background-image:linear-gradient(var(--border2) 1px,transparent 1px),linear-gradient(90deg,var(--border2) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;}
+
+/* STAT CARD */
+.sc{padding:24px;position:relative;overflow:hidden;}
+.sc-num{font-family:'Unbounded',sans-serif;font-size:30px;font-weight:900;line-height:1;}
+.sc-lbl{font-size:11.5px;color:var(--muted);margin-top:5px;letter-spacing:.05em;text-transform:uppercase;}
+.sc-line{height:3px;border-radius:2px;margin-top:14px;}
+
+/* FEAT CARD */
+.fc{padding:26px;position:relative;overflow:hidden;transition:border-color .3s;}
+.fc::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;background:radial-gradient(ellipse at top left,rgba(0,212,255,.07),transparent 65%);}
+.fc:hover::before,.fc:hover{opacity:1;}
+.fc:hover{border-color:rgba(0,212,255,.2);}
+.fc-num{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--sub);margin-bottom:14px;}
+.fc-ico{font-size:34px;margin-bottom:12px;}
+.fc-t{font-size:17px;font-weight:700;margin-bottom:9px;}
+.fc-d{font-size:13.5px;color:var(--muted);line-height:1.75;}
+
+/* PRIVACY TABLE */
+.ptbl{width:100%;border-collapse:collapse;}
+.ptbl th{padding:10px 13px;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);text-align:left;font-weight:600;}
+.ptbl td{padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.025);font-size:13px;}
+.ptbl tr:last-child td{border:none;}
+
+/* CTA */
+.cta-wrap{padding:60px;text-align:center;border-radius:24px;background:radial-gradient(ellipse at center,rgba(0,212,255,.08),transparent 70%);border:1px solid rgba(0,212,255,.12);position:relative;overflow:hidden;}
+.cta-wrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 85% 50%,rgba(99,102,241,.1),transparent 60%);}
+
+/* GAUGE */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.gauge-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;}
+
+/* SKILL CHIP */
+.sk-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:10px;font-size:13px;font-weight:500;}
+.sk-v{background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.22);color:var(--green);}
+.sk-u{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.18);color:var(--amber);}
+
+/* EXP CARD */
+.ecrd{padding:14px 16px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:10px;transition:border-color .2s;}
+.ecrd:hover{border-color:var(--border2);}
+
+/* SCORE PANEL */
+.spanel{padding:26px;position:sticky;top:80px;}
+.final-disp{text-align:center;padding:18px;background:rgba(0,212,255,.05);border-radius:14px;border:1px solid rgba(0,212,255,.12);margin-bottom:18px;}
+.fnum{font-family:'Unbounded',sans-serif;font-size:50px;font-weight:900;line-height:1;}
+
+/* COMPLETE */
+.cring{width:110px;height:110px;border-radius:50%;background:rgba(16,185,129,.1);border:3px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:50px;margin:0 auto 24px;box-shadow:0 0 60px rgba(16,185,129,.3);animation:cpop .6s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes cpop{from{transform:scale(0) rotate(-20deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+
+/* NOTICE BOX */
+.notice{border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:18px;}
+.notice-amber{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);color:var(--amber);}
+.notice-cyan{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.14);color:var(--cyan);}
+.notice-red{background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.14);color:var(--red);}
+
+/* SKILL BLOCK */
+.sk-block{padding:18px;background:rgba(0,212,255,.03);border-radius:12px;border:1px solid rgba(0,212,255,.1);margin-bottom:12px;}
+.exp-block{padding:18px;background:rgba(245,158,11,.03);border-radius:12px;border:1px solid rgba(245,158,11,.1);margin-bottom:12px;}
+
+/* MISC */
+.ub{font-family:'Unbounded',sans-serif;}
+.tc{color:var(--cyan);} .tv{color:#c4b5fd;} .tg{color:var(--green);} .tr{color:var(--red);} .ta{color:var(--amber);} .tm{color:var(--muted);}
+.fw6{font-weight:600;} .fw7{font-weight:700;} .fw8{font-weight:800;}
+</style>
+</head>
+
+<body>
+
+<div id="aurora">
+  <div class="abl" style="width:700px;height:500px;left:-200px;top:-120px;background:radial-gradient(ellipse,rgba(0,180,216,.11),transparent 70%);animation-duration:22s;"></div>
+  <div class="abl" style="width:600px;height:600px;right:-100px;top:180px;background:radial-gradient(ellipse,rgba(99,102,241,.09),transparent 70%);animation-duration:19s;animation-delay:-9s;"></div>
+  <div class="abl" style="width:500px;height:450px;left:35%;bottom:-80px;background:radial-gradient(ellipse,rgba(139,92,246,.08),transparent 70%);animation-duration:26s;animation-delay:-15s;"></div>
+</div>
+
+<canvas id="particles"></canvas>
+
+<div id="root"></div>
+
+<script>
+/* Particle System */
+(function(){
+  const c=document.getElementById('particles'),ctx=c.getContext('2d');
+  let W,H,pts;
+  const N=50;
+  function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  function mkPts(){pts=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.3+.4,a:Math.random()*.45+.1}));}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,212,255,${p.a})`;ctx.fill();
+    });
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<115){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(99,102,241,${(1-d/115)*.1})`;ctx.lineWidth=.7;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',()=>{resize();mkPts();});
+  resize();mkPts();draw();
+})();
+</script>
+
+<script type="text/babel">
+const {useState,useEffect,useRef} = React;
+const BASE = 'http://127.0.0.1:5000/api';
+
+async function api(path,opts={}){
+  const tk=localStorage.getItem('fh_token');
+  const res=await fetch(BASE+path,{headers:{'Content-Type':'application/json',...(tk?{Authorization:'Bearer '+tk}:{})}, ...opts});
+  const d=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(d.error||'Request failed');
+  return d;
+}
+function b64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});}
+
+/* ── Toast ── */
+function Toast({msg,type,onClose}){
+  useEffect(()=>{const t=setTimeout(onClose,4000);return()=>clearTimeout(t);},[]);
+  return <div className={`toast ${type==='success'?'t-success':'t-error'}`}><span style={{fontSize:17,lineHeight:1}}>{type==='success'?'✓':'✕'}</span><span>{msg}</span></div>;
+}
+
+/* ── Nav ── */
+function Nav({page,setPage,token,userType,onLogout}){
+  return(
+    <nav className="nav">
+      <div className="logo" onClick={()=>setPage('landing')}>Fair<em>Hire</em></div>
+      <div className="nav-r">
+        {!token&&<>
+          <button className="btn btn-glass btn-sm" onClick={()=>setPage('candidate-login')}>Candidate Login</button>
+          <button className="btn btn-glass btn-sm" onClick={()=>setPage('hr-login')}>HR Portal</button>
+          <button className="btn btn-cyan btn-sm" onClick={()=>setPage('candidate-register')}>Apply Now →</button>
+        </>}
+        {token&&userType==='candidate'&&<>
+          <button className="btn btn-glass btn-sm" onClick={()=>setPage('candidate-dashboard')}>My Dashboard</button>
+          <button className="btn btn-outline btn-sm" onClick={onLogout}>Logout</button>
+        </>}
+        {token&&userType==='hr'&&<>
+          <button className="btn btn-glass btn-sm" onClick={()=>setPage('hr-dashboard')}>HR Dashboard</button>
+          <button className="btn btn-outline btn-sm" onClick={onLogout}>Logout</button>
+        </>}
+      </div>
+    </nav>
+  );
+}
+
+/* ── Landing ── */
+function Landing({setPage}){
+  return(
+    <div className="page">
+      <div className="ctr">
+        <div style={{paddingTop:50,paddingBottom:70,maxWidth:820}}>
+          <div className="hero-tag fu"><span className="htag-dot"></span> AI-POWERED · BIAS-FREE · VERIFIED</div>
+          <h1 className="h1 fu fu1"><span className="hgrad">Hire the best,</span><br/><span style={{color:'rgba(255,255,255,.16)'}}>not the loudest.</span></h1>
+          <p className="hsub fu fu2">FairHire's <strong style={{color:'var(--text)'}}>Selective Anonymity</strong> engine hides candidate names, schools, and addresses from recruiters — while Google Gemini AI verifies every skill claim in real time.</p>
+          <div className="row g8 wrap fu fu3">
+            <button className="btn btn-cyan btn-lg" onClick={()=>setPage('candidate-register')}>Create Free Profile →</button>
+            <button className="btn btn-glass btn-lg" onClick={()=>setPage('hr-login')}>HR Portal ↗</button>
+          </div>
+        </div>
+
+        <div className="g4 mb32 fu fu2">
+          {[
+            {n:'100%',l:'Identity hidden from HR',c:'var(--cyan)',li:'linear-gradient(90deg,var(--cyan),var(--indigo))'},
+            {n:'AI',  l:'Gemini Skill Verification',c:'#c4b5fd',li:'linear-gradient(90deg,var(--violet),var(--pink))'},
+            {n:'4',   l:'Verification Layers',c:'var(--green)',li:'var(--green)'},
+            {n:'PDF', l:'Bias-Free PDF Reports',c:'var(--amber)',li:'var(--amber)'},
+          ].map(s=>(
+            <div key={s.l} className="card sc">
+              <div className="grid-bg"/>
+              <div className="sc-num" style={{color:s.c}}>{s.n}</div>
+              <div className="sc-lbl">{s.l}</div>
+              <div className="sc-line" style={{background:s.li}}/>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="ub fu fu2" style={{fontSize:26,fontWeight:800,marginBottom:22}}>How FairHire works</h2>
+        <div className="g3 mb32">
+          {[
+            {n:'01',ico:'🔐',t:'Secure Identity',d:'Your name, phone, DOB, address, and government ID are stored encrypted. No recruiter can ever access them — guaranteed by architecture.'},
+            {n:'02',ico:'🤖',t:'AI Verification',d:'Google Gemini analyses each skill claim against uploaded certificates. It checks issuer presence, date validity, and content relevance.'},
+            {n:'03',ico:'📊',t:'Bias-Free Evaluation',d:'HR sees only scores, CGPA, verified skills, and experience duration. Zero names. Zero schools. Zero addresses. Pure merit.'},
+          ].map(c=>(
+            <div key={c.n} className="card fc">
+              <div className="fc-num">STEP {c.n}</div>
+              <div className="fc-ico">{c.ico}</div>
+              <div className="fc-t">{c.t}</div>
+              <div className="fc-d">{c.d}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="card mb32 fu fu3" style={{padding:32,position:'relative',overflow:'hidden'}}>
+          <div className="grid-bg"/>
+          <h2 className="ub" style={{fontSize:20,fontWeight:800,marginBottom:20}}>What HR can — and cannot — see</h2>
+          <div style={{overflowX:'auto'}}>
+            <table className="ptbl">
+              <thead><tr><th>Data</th><th>Stored</th><th>You see</th><th>HR sees</th></tr></thead>
+              <tbody>
+                {[
+                  ['Full Name & Email','✅','✅','🔒 Never'],
+                  ['Date of Birth','✅','✅','🔒 Never'],
+                  ['Phone & Address','✅','✅','🔒 Never'],
+                  ['Government ID','✅','✅','🔒 Never'],
+                  ['School / College Name','✅','✅','🔒 Never'],
+                  ['Company Names','✅','✅','🔒 Never'],
+                  ['CV / Resume File','✅','✅','🔒 Never'],
+                  ['10th / 12th Percentage','✅','✅','✅ Yes'],
+                  ['CGPA','✅','✅','✅ Yes'],
+                  ['Degree & Branch','✅','✅','✅ Yes'],
+                  ['Verified Skills + Confidence','✅','✅','✅ Yes'],
+                  ['Experience Duration & Role','✅','✅','✅ Yes'],
+                  ['Final Score + Confidence','✅','✅','✅ Yes'],
+                ].map(([d,s,c,h])=>(
+                  <tr key={d}>
+                    <td className="fw6">{d}</td>
+                    <td><span className="badge bg-green">{s}</span></td>
+                    <td><span className="badge bg-cyan">{c}</span></td>
+                    <td><span className={`badge ${h.includes('Never')?'bg-red':'bg-green'}`}>{h}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="cta-wrap fu fu3">
+          <div style={{position:'relative',zIndex:1}}>
+            <div className="hero-tag" style={{display:'inline-flex',marginBottom:18}}>✦ FREE TO JOIN</div>
+            <h2 className="ub" style={{fontSize:34,fontWeight:900,marginBottom:14}}>Your skills deserve <span className="tc">fair evaluation</span></h2>
+            <p style={{color:'var(--muted)',fontSize:16,marginBottom:32,maxWidth:520,margin:'0 auto 32px'}}>
+              Join FairHire — where CGPA and verified skills matter, not college prestige or personal identity.
+            </p>
+            <div className="row g12" style={{justifyContent:'center',flexWrap:'wrap'}}>
+              <button className="btn btn-cyan btn-lg" onClick={()=>setPage('candidate-register')}>Create Profile — Free →</button>
+              <button className="btn btn-glass btn-lg" onClick={()=>setPage('candidate-login')}>Continue Application</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Wizard Bar ── */
+const WSTEPS=[{l:'Identity'},{l:'Qualifications'},{l:'Skills & CV'},{l:'Complete'}];
+function WizardBar({current}){
+  return(
+    <div className="wizard">
+      {WSTEPS.map((s,i)=>(
+        <React.Fragment key={i}>
+          <div className="wstep">
+            <div className={`wdot ${i<current?'done':i===current?'active':'idle'}`}>{i<current?'✓':i+1}</div>
+            <span className={`wlbl ${i<current?'done':i===current?'active':''}`}>{s.l}</span>
+          </div>
+          {i<WSTEPS.length-1&&(
+            <div className="wcon"><div className="wcon-fill" style={{width:i<current?'100%':'0%'}}/></div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+/* ── REGISTER ── */
+const BOARDS=['CBSE','ICSE','Maharashtra Board','UP Board','Tamil Nadu Board','Karnataka Board','Rajasthan Board','Kerala Board','Gujarat Board','Other'];
+const DEGREES=['B.Tech / B.E.','B.Sc','BCA','B.Com','BBA','B.A.','MCA','M.Tech','MBA','M.Sc','Ph.D','Diploma','Other'];
+const GOVIDS=['Aadhar Card','PAN Card',"Driver's License",'Passport','Voter ID'];
+
+function CandidateRegister({setPage,showToast,setAuth}){
+  const [step,setStep]=useState(0);
+  const [loading,setLoading]=useState(false);
+  const [cid,setCid]=useState('');
+
+  // Step 0
+  const [id,setId]=useState({fullName:'',email:'',phone:'',dob:'',address:'',password:'',confirm:'',govIdType:'Aadhar Card',govIdNumber:''});
+  // Step 1
+  const [q,setQ]=useState({tenthPercentage:'',tenthBoard:'CBSE',twelfthPercentage:'',twelfthBoard:'CBSE',degree:'B.Tech / B.E.',branch:'',cgpa:'',collegeName:'',schoolName:''});
+  // Step 2
+  const [skills,setSkills]=useState([{name:'',certData:'',certName:''}]);
+  const [exp,setExp]=useState([{role:'',company:'',durationMonths:'',description:''}]);
+  const [cv,setCv]=useState(null);
+  const [cvData,setCvData]=useState('');
+
+  const upd=(s)=>(k,v)=>s(p=>({...p,[k]:v}));
+
+  async function step0(){
+    if(!id.fullName||!id.email||!id.password){showToast('Please fill Name, Email and Password','error');return;}
+    if(!id.dob){showToast('Please enter your Date of Birth','error');return;}
+    if(id.password.length<6){showToast('Password must be at least 6 characters','error');return;}
+    if(id.password!==id.confirm){showToast('Passwords do not match','error');return;}
+    setLoading(true);
+    try{
+      await api('/candidate/register',{method:'POST',body:JSON.stringify({
+        fullName:id.fullName,email:id.email,phone:id.phone,dob:id.dob,
+        address:id.address,password:id.password,
+        govIdType:id.govIdType,govIdNumber:id.govIdNumber
+      })});
+      const lg=await api('/candidate/login',{method:'POST',body:JSON.stringify({email:id.email,password:id.password})});
+      localStorage.setItem('fh_token',lg.token);
+      localStorage.setItem('fh_type','candidate');
+      localStorage.setItem('fh_cid',lg.candidateId);
+      setCid(lg.candidateId);
+      setAuth(lg.token,'candidate');
+      setStep(1);
+      showToast(`Welcome ${id.fullName.split(' ')[0]}! Step 2: Add your qualifications.`,'success');
+    }catch(e){showToast(e.message,'error');}
+    setLoading(false);
+  }
+
+  async function step1(){
+    console.log("TOKEN:", localStorage.getItem('fh_token'));
+
+    if(!q.tenthPercentage||!q.twelfthPercentage||!q.cgpa){showToast('Please fill all percentage and CGPA fields','error');return;}
+    setLoading(true);
+    try{
+      await api('/candidate/qualifications',{method:'POST',body:JSON.stringify(q)});
+      setStep(2);
+      showToast('Qualifications saved! Now add your skills.','success');
+    }catch(e){showToast(e.message,'error');}
+    setLoading(false);
+  }
+
+  async function step2(){
+    const sk=skills.filter(s=>s.name.trim());
+    if(!sk.length){showToast('Please add at least one skill','error');return;}
+    setLoading(true);
+    try{
+      await api('/candidate/skills',{method:'POST',body:JSON.stringify({
+        skills:sk.map(s=>({name:s.name,certData:s.certData})),
+        experience:exp.filter(e=>e.role.trim()),
+        cvData
+      })});
+      await api('/candidate/verify',{method:'POST'});
+      setStep(3);
+      showToast('🎉 AI verification complete! Redirecting to your dashboard…','success');
+      setTimeout(()=>setPage('candidate-dashboard'),2400);
+    }catch(e){showToast(e.message,'error');}
+    setLoading(false);
+  }
+
+  async function uploadCert(idx,file){
+    if(!file)return;
+    if(file.size>4*1024*1024){showToast('File too large (max 4 MB)','error');return;}
+    const data=await b64(file);
+    setSkills(p=>p.map((s,i)=>i===idx?{...s,certData:data,certName:file.name}:s));
+    showToast(`Certificate attached for skill #${idx+1}`,'success');
+  }
+
+  async function uploadCV(file){
+    if(!file)return;
+    if(file.size>10*1024*1024){showToast('CV too large (max 10 MB)','error');return;}
+    const data=await b64(file);
+    setCvData(data);setCv(file);
+    showToast('CV uploaded successfully ✓','success');
+  }
+
+  return(
+    <div className="page">
+      <div className="nrw2">
+        <div className="mb32 fu">
+          <h1 className="ub" style={{fontSize:26,fontWeight:900,marginBottom:6}}>Create Your Profile</h1>
+          <p className="tm" style={{fontSize:14}}>Your identity is kept <strong className="tc">strictly private</strong> — HR only sees your scores and verified skills.</p>
+        </div>
+        <WizardBar current={step}/>
+
+        {/* ─── STEP 0: Identity ─── */}
+        {step===0&&(
+          <div className="card stin" style={{padding:32}}>
+            <div className="row jb mb16">
+              <span className="slbl s-cyan">🔐 Secure Identity</span>
+              <span className="badge bg-red">🔒 Never shown to HR</span>
+            </div>
+            <div className="notice notice-red mb24" style={{marginBottom:20}}>
+              <strong>Privacy guarantee:</strong> Every field below is stored encrypted and <strong>never</strong> shown to any recruiter.
+            </div>
+            <div className="g2">
+              <div className="field">
+                <label>Full Name *</label>
+                <div className="inp-wrap"><span className="ic">👤</span><input className="inp" placeholder="Priya Sharma" value={id.fullName} onChange={e=>upd(setId)('fullName',e.target.value)}/></div>
+              </div>
+              <div className="field">
+                <label>Date of Birth *</label>
+                <div className="inp-wrap"><span className="ic">🎂</span>
+                  <input className="inp" type="date" value={id.dob} onChange={e=>upd(setId)('dob',e.target.value)}
+                    max={new Date(Date.now()-14*365*24*60*60*1000).toISOString().split('T')[0]}/>
+                </div>
+              </div>
+              <div className="field">
+                <label>Email Address *</label>
+                <div className="inp-wrap"><span className="ic">✉️</span><input className="inp" type="email" placeholder="priya@example.com" value={id.email} onChange={e=>upd(setId)('email',e.target.value)}/></div>
+              </div>
+              <div className="field">
+                <label>Phone Number</label>
+                <div className="inp-wrap"><span className="ic">📱</span><input className="inp" placeholder="+91 98765 43210" value={id.phone} onChange={e=>upd(setId)('phone',e.target.value)}/></div>
+              </div>
+              <div className="field" style={{gridColumn:'1/-1'}}>
+                <label>Residential Address</label>
+                <div className="inp-wrap"><span className="ic">🏠</span><input className="inp" placeholder="Mumbai, Maharashtra, India" value={id.address} onChange={e=>upd(setId)('address',e.target.value)}/></div>
+              </div>
+              <div className="field">
+                <label>Government ID Type</label>
+                <select className="inp" value={id.govIdType} onChange={e=>upd(setId)('govIdType',e.target.value)}>
+                  {GOVIDS.map(g=><option key={g}>{g}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label>ID Number</label>
+                <input className="inp" placeholder="XXXX-XXXX-XXXX" value={id.govIdNumber} onChange={e=>upd(setId)('govIdNumber',e.target.value)}/>
+              </div>
+              <div className="field">
+                <label>Password * (min 6 chars)</label>
+                <input className="inp" type="password" placeholder="••••••••" value={id.password} onChange={e=>upd(setId)('password',e.target.value)}/>
+                {id.password&&(
+                  <div style={{marginTop:6}}>
+                    <div className="pbar"><div className="pfill" style={{width:Math.min(100,id.password.length*10)+'%',background:id.password.length>=8?'var(--green)':id.password.length>=6?'var(--amber)':'var(--red)'}}/></div>
+                    <span style={{fontSize:11,color:id.password.length>=8?'var(--green)':id.password.length>=6?'var(--amber)':'var(--red)',marginTop:3,display:'block'}}>
+                      {id.password.length>=8?'Strong':id.password.length>=6?'Medium':'Weak'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="field">
+                <label>Confirm Password *</label>
+                <input className="inp" type="password" placeholder="••••••••" value={id.confirm} onChange={e=>upd(setId)('confirm',e.target.value)}/>
+                {id.confirm&&<span style={{fontSize:11,marginTop:4,display:'block',color:id.confirm===id.password?'var(--green)':'var(--red)'}}>{id.confirm===id.password?'✓ Passwords match':'✕ Mismatch'}</span>}
+              </div>
+            </div>
+            <div className="hdiv"/>
+            <div className="row jb wrap g12">
+              <button className="btn btn-glass btn-sm" onClick={()=>setPage('landing')}>← Back</button>
+              <button className="btn btn-cyan" onClick={step0} disabled={loading} style={{minWidth:200}}>
+                {loading?<><span className="sp"/> Registering…</>:'Continue to Qualifications →'}
+              </button>
+            </div>
+            <p style={{marginTop:16,textAlign:'center',fontSize:13,color:'var(--muted)'}}>
+              Already registered? <span className="tc fw6" style={{cursor:'pointer'}} onClick={()=>setPage('candidate-login')}>Login here</span>
+            </p>
+          </div>
+        )}
+
+        {/* ─── STEP 1: Qualifications ─── */}
+        {step===1&&(
+          <div className="card stin" style={{padding:32}}>
+            <div className="row jb mb8">
+              <span className="slbl s-violet">🎓 Academic Qualifications</span>
+              <span className="badge bg-amber">Scores visible to HR only</span>
+            </div>
+            <div className="notice notice-amber">
+              ⚠️ <strong>Privacy note:</strong> School and college names are hidden from HR. Only percentages and CGPA are shared.
+            </div>
+
+            <div className="slbl s-cyan" style={{marginBottom:12}}>10th Standard</div>
+            <div className="g2">
+              <div className="field">
+                <label>Percentage *</label>
+                <input className="inp" type="number" min="0" max="100" step="0.1" placeholder="85.5" value={q.tenthPercentage} onChange={e=>upd(setQ)('tenthPercentage',e.target.value)}/>
+              </div>
+              <div className="field">
+                <label>Board *</label>
+                <select className="inp" value={q.tenthBoard} onChange={e=>upd(setQ)('tenthBoard',e.target.value)}>{BOARDS.map(b=><option key={b}>{b}</option>)}</select>
+              </div>
+              <div className="field" style={{gridColumn:'1/-1'}}>
+                <label>School Name <span className="tr" style={{fontSize:10,marginLeft:6}}>🔒 Private — hidden from HR</span></label>
+                <input className="inp" placeholder="e.g. Delhi Public School (never shown)" value={q.schoolName} onChange={e=>upd(setQ)('schoolName',e.target.value)}/>
+              </div>
+            </div>
+
+            <div className="slbl s-cyan" style={{marginBottom:12,marginTop:4}}>12th Standard</div>
+            <div className="g2">
+              <div className="field">
+                <label>Percentage *</label>
+                <input className="inp" type="number" min="0" max="100" step="0.1" placeholder="88.0" value={q.twelfthPercentage} onChange={e=>upd(setQ)('twelfthPercentage',e.target.value)}/>
+              </div>
+              <div className="field">
+                <label>Board *</label>
+                <select className="inp" value={q.twelfthBoard} onChange={e=>upd(setQ)('twelfthBoard',e.target.value)}>{BOARDS.map(b=><option key={b}>{b}</option>)}</select>
+              </div>
+            </div>
+
+            <div className="slbl s-violet" style={{marginBottom:12,marginTop:4}}>Graduation / College</div>
+            <div className="g2">
+              <div className="field">
+                <label>Degree *</label>
+                <select className="inp" value={q.degree} onChange={e=>upd(setQ)('degree',e.target.value)}>{DEGREES.map(d=><option key={d}>{d}</option>)}</select>
+              </div>
+              <div className="field">
+                <label>Branch / Major</label>
+                <input className="inp" placeholder="Computer Science Engineering" value={q.branch} onChange={e=>upd(setQ)('branch',e.target.value)}/>
+              </div>
+              <div className="field">
+                <label>CGPA (10-point scale) *</label>
+                <input className="inp" type="number" min="0" max="10" step="0.01" placeholder="8.4" value={q.cgpa} onChange={e=>upd(setQ)('cgpa',e.target.value)}/>
+              </div>
+              <div className="field">
+                <label>College Name <span className="tr" style={{fontSize:10,marginLeft:6}}>🔒 Private</span></label>
+                <input className="inp" placeholder="e.g. IIT Bombay (hidden from HR)" value={q.collegeName} onChange={e=>upd(setQ)('collegeName',e.target.value)}/>
+              </div>
+            </div>
+
+            <div className="hdiv"/>
+            <div className="row jb wrap g12">
+              <button className="btn btn-glass btn-sm" onClick={()=>setStep(0)}>← Back</button>
+              <button className="btn btn-cyan" onClick={step1} disabled={loading} style={{minWidth:180}}>
+                {loading?<><span className="sp"/> Saving…</>:'Continue to Skills →'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 2: Skills + CV ─── */}
+        {step===2&&(
+          <div className="stin">
+            {/* CV Upload */}
+            <div className="card mb16" style={{padding:28}}>
+              <div className="row jb mb8">
+                <span className="slbl s-green">📄 CV / Resume Upload</span>
+                <span className="badge bg-indigo">AI-Parsed</span>
+              </div>
+              <p className="tm mb16" style={{fontSize:13.5}}>
+                Upload your CV so our AI can cross-reference declared skills and experience for higher verification confidence.
+              </p>
+              <label className={`uzone ${cv?'filled':''}`} style={{minHeight:96}}>
+                <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={e=>uploadCV(e.target.files[0])}/>
+                <div className="uzone-icon">{cv?'✅':'📎'}</div>
+                <div className="uzone-text">
+                  {cv
+                    ?<><strong style={{color:'var(--green)'}}>{cv.name}</strong><br/><span style={{fontSize:11.5}}>{(cv.size/1024).toFixed(0)} KB — Click to replace</span></>
+                    :<><strong>Click to upload CV / Resume</strong><br/>PDF, DOC, DOCX, TXT — max 10 MB</>
+                  }
+                </div>
+              </label>
+            </div>
+
+            {/* Skills */}
+            <div className="card mb16" style={{padding:28}}>
+              <div className="row jb mb8">
+                <span className="slbl s-cyan">⚡ Skills & Certificates</span>
+                <span className="badge bg-cyan">Gemini Verified</span>
+              </div>
+              <p className="tm mb16" style={{fontSize:13.5}}>
+                Add each skill separately. Upload a certificate for a higher verification score — AI checks issuer, date, and relevance.
+              </p>
+              {skills.map((sk,i)=>(
+                <div key={i} className="sk-block">
+                  <div className="row jb mb8">
+                    <span style={{fontSize:12,fontWeight:700,letterSpacing:'.05em'}} className="tc">SKILL #{i+1}</span>
+                    {skills.length>1&&<button className="btn btn-danger" onClick={()=>setSkills(p=>p.filter((_,j)=>j!==i))}>Remove ✕</button>}
+                  </div>
+                  <div className="g2">
+                    <div className="field" style={{marginBottom:0}}>
+                      <label>Skill Name *</label>
+                      <input className="inp" placeholder="e.g. Python, Machine Learning, SQL" value={sk.name} onChange={e=>setSkills(p=>p.map((s,j)=>j===i?{...s,name:e.target.value}:s))}/>
+                    </div>
+                    <div className="field" style={{marginBottom:0}}>
+                      <label>Certificate <span style={{fontWeight:400,textTransform:'none',fontSize:11,color:'var(--sub)'}}>optional · max 4 MB</span></label>
+                      <label className={`uzone ${sk.certData?'filled':''}`} style={{padding:'10px 14px',minHeight:48,cursor:'pointer'}}>
+                        <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e=>uploadCert(i,e.target.files[0])}/>
+                        <div className="uzone-text" style={{fontSize:12.5}}>
+                          {sk.certData?<strong style={{color:'var(--green)'}}>✓ {sk.certName||'Certificate attached'}</strong>:<><strong>📎 Upload PDF / Image</strong></>}
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button className="btn btn-glass btn-sm mt8" onClick={()=>setSkills(p=>[...p,{name:'',certData:'',certName:''}])}>+ Add Another Skill</button>
+            </div>
+
+            {/* Experience */}
+            <div className="card mb16" style={{padding:28}}>
+              <div className="row jb mb8">
+                <span className="slbl s-amber">💼 Work Experience</span>
+                <span className="badge bg-red">Company names private</span>
+              </div>
+              {exp.map((ex,i)=>(
+                <div key={i} className="exp-block">
+                  <div className="row jb mb8">
+                    <span style={{fontSize:12,fontWeight:700,letterSpacing:'.05em'}} className="ta">EXPERIENCE #{i+1}</span>
+                    {exp.length>1&&<button className="btn btn-danger" onClick={()=>setExp(p=>p.filter((_,j)=>j!==i))}>Remove ✕</button>}
+                  </div>
+                  <div className="g2">
+                    <div className="field" style={{marginBottom:0}}>
+                      <label>Role / Position</label>
+                      <input className="inp" placeholder="Software Engineer Intern" value={ex.role} onChange={e=>setExp(p=>p.map((x,j)=>j===i?{...x,role:e.target.value}:x))}/>
+                    </div>
+                    <div className="field" style={{marginBottom:0}}>
+                      <label>Duration (months)</label>
+                      <input className="inp" type="number" min="1" placeholder="6" value={ex.durationMonths} onChange={e=>setExp(p=>p.map((x,j)=>j===i?{...x,durationMonths:e.target.value}:x))}/>
+                    </div>
+                    <div className="field" style={{marginBottom:0}}>
+                      <label>Company <span className="tr" style={{fontSize:10,marginLeft:4}}>🔒 Private</span></label>
+                      <input className="inp" placeholder="e.g. Google (never shown to HR)" value={ex.company} onChange={e=>setExp(p=>p.map((x,j)=>j===i?{...x,company:e.target.value}:x))}/>
+                    </div>
+                    <div className="field" style={{marginBottom:0}}>
+                      <label>Key Responsibilities</label>
+                      <input className="inp" placeholder="Built REST APIs, improved perf 40%…" value={ex.description} onChange={e=>setExp(p=>p.map((x,j)=>j===i?{...x,description:e.target.value}:x))}/>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button className="btn btn-glass btn-sm mt8" onClick={()=>setExp(p=>[...p,{role:'',company:'',durationMonths:'',description:''}])}>+ Add Experience</button>
+            </div>
+
+            <div className="row jb wrap g12">
+              <button className="btn btn-glass btn-sm" onClick={()=>setStep(1)}>← Back</button>
+              <button className="btn btn-indigo" onClick={step2} disabled={loading} style={{minWidth:224,fontSize:15}}>
+                {loading?<><span className="sp"/> Running AI Verification…</>:'🤖 Verify & Complete →'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ─── STEP 3: Done ─── */}
+        {step===3&&(
+          <div className="card stin" style={{padding:48,textAlign:'center'}}>
+            <div className="cring">🎉</div>
+            <h2 className="ub" style={{fontSize:24,fontWeight:900,marginBottom:10}}>Profile Complete!</h2>
+            <p className="tm" style={{marginBottom:6}}>Your Candidate ID: <strong className="tc ub" style={{fontSize:16}}>{cid||localStorage.getItem('fh_cid')}</strong></p>
+            <p className="tm" style={{fontSize:13.5,marginBottom:28}}>AI verification is complete. Redirecting to your evaluation dashboard…</p>
+            <button className="btn btn-cyan btn-lg" onClick={()=>setPage('candidate-dashboard')}>Go to Dashboard →</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── Candidate Login ── */
+function CandidateLogin({setPage,showToast,setAuth}){
+  const [email,setEmail]=useState('');
+  const [pw,setPw]=useState('');
+  const [loading,setLoading]=useState(false);
+  async function login(){
+    if(!email||!pw){showToast('Please enter email and password','error');return;}
+    setLoading(true);
+    try{
+      const r=await api('/candidate/login',{method:'POST',body:JSON.stringify({email,password:pw})});
+      localStorage.setItem('fh_token',r.token);
+      localStorage.setItem('fh_type','candidate');
+      localStorage.setItem('fh_cid',r.candidateId);
+      setAuth(r.token,'candidate');
+      setPage(r.step>=4?'candidate-dashboard':'candidate-register');
+      showToast('Welcome back!','success');
+    }catch(e){showToast(e.message,'error');}
+    setLoading(false);
+  }
+  return(
+    <div className="page" style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{width:'100%',maxWidth:440}}>
+        <div className="card card-cyan stin" style={{padding:40}}>
+          <div style={{textAlign:'center',marginBottom:28}}>
+            <div style={{fontSize:50,marginBottom:12}}>🔐</div>
+            <h1 className="ub" style={{fontSize:22,fontWeight:900,marginBottom:6}}>Candidate Login</h1>
+            <p className="tm" style={{fontSize:14}}>Continue your application journey</p>
+          </div>
+          <div className="hdiv"/>
+          <div style={{marginTop:20}}>
+            <div className="field">
+              <label>Email Address</label>
+              <div className="inp-wrap"><span className="ic">✉️</span><input className="inp" type="email" placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()}/></div>
+            </div>
+            <div className="field">
+              <label>Password</label>
+              <div className="inp-wrap"><span className="ic">🔒</span><input className="inp" type="password" placeholder="••••••••" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()}/></div>
+            </div>
+          </div>
+          <button className="btn btn-cyan mt8" style={{width:'100%',padding:13,fontSize:15}} onClick={login} disabled={loading}>
+            {loading?<span className="sp"/>:null} Login
+          </button>
+          <p style={{marginTop:18,textAlign:'center',fontSize:13,color:'var(--muted)'}}>
+            No account? <span className="tc fw6" style={{cursor:'pointer'}} onClick={()=>setPage('candidate-register')}>Register free →</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Gauge SVG ── */
+function Gauge({label,value,color,size=72}){
+  const R=size*.38,cx=size/2,cy=size/2,circ=2*Math.PI*R;
+  const pct=Math.max(0,Math.min(100,value||0));
+  return(
+    <div className="gauge-wrap">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={size*.1}/>
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke={color} strokeWidth={size*.1}
+          strokeDasharray={circ} strokeDashoffset={circ-(pct/100)*circ}
+          strokeLinecap="round" transform={`rotate(-90 ${cx} ${cy})`}
+          style={{transition:'stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)'}}/>
+        <text x={cx} y={cy+5} textAnchor="middle" fill="white" fontSize={size*.19} fontWeight="700" fontFamily="Unbounded,sans-serif">{pct.toFixed(0)}</text>
+      </svg>
+      <div className="gauge-lbl">{label}</div>
+    </div>
+  );
+}
+
+/* ── Candidate Dashboard ── */
+function CandidateDashboard({showToast}){
+  const [p,setP]=useState(null);
+  const [loading,setLoading]=useState(true);
+  useEffect(()=>{
+    api('/candidate/profile').then(setP).catch(e=>showToast(e.message,'error')).finally(()=>setLoading(false));
+  },[]);
+  if(loading)return <div className="page" style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><span className="sp" style={{width:36,height:36,borderWidth:3}}/></div>;
+  if(!p)return <div className="page nrw" style={{textAlign:'center',paddingTop:100}}><p>Could not load profile.</p></div>;
+  const sc=p.score;
+  const cc=sc?.confidence_level==='High'?'var(--green)':sc?.confidence_level==='Medium'?'var(--amber)':'var(--red)';
+  const cb=sc?.confidence_level==='High'?'bg-green':sc?.confidence_level==='Medium'?'bg-amber':'bg-red';
+  return(
+    <div className="page">
+      <div className="ctr">
+        <div className="row jb wrap g12 mb32 fu">
+          <div>
+            <h1 className="ub" style={{fontSize:24,fontWeight:900}}>My Evaluation Dashboard</h1>
+            <div className="row g8 mt8 wrap">
+              <span className="badge bg-cyan">ID: {p.candidateId}</span>
+              <span className="badge bg-indigo">Candidate View</span>
+              {sc&&<span className={`badge ${cb}`}>{sc.confidence_level} Confidence</span>}
+            </div>
+          </div>
+          {sc&&<div style={{textAlign:'right'}}>
+            <div className="ub" style={{fontSize:44,fontWeight:900,color:cc,lineHeight:1}}>{sc.final_score?.toFixed(1)}<span style={{fontSize:18,color:'var(--muted)'}}>/100</span></div>
+            <div style={{fontSize:12,color:'var(--muted)',marginTop:3}}>Final Score</div>
+          </div>}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 310px',gap:20,alignItems:'start'}}>
+          <div>
+            {/* Identity */}
+            <div className="card fu fu1" style={{padding:26,marginBottom:16,borderLeft:'3px solid var(--red)'}}>
+              <div className="row jb mb16">
+                <span className="slbl s-cyan" style={{fontSize:11}}>🔐 Your Identity — Fully Private</span>
+                <span className="badge bg-red">🔒 Never shown to HR</span>
+              </div>
+              <div className="g2" style={{gap:12}}>
+                {[['👤 Name',p.fullName],['✉️ Email',p.email],['📱 Phone',p.phone||'—'],['🏠 Address',p.address||'—']].map(([k,v])=>(
+                  <div key={k} style={{padding:'10px 13px',background:'rgba(255,255,255,.04)',borderRadius:10,border:'1px solid var(--border)'}}>
+                    <div style={{fontSize:10.5,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'.05em',marginBottom:4}}>{k}</div>
+                    <div style={{fontSize:14,fontWeight:500}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Qualifications */}
+            {p.qualifications&&(
+              <div className="card fu fu2" style={{padding:26,marginBottom:16}}>
+                <div className="row jb mb16">
+                  <span className="slbl s-violet" style={{fontSize:11}}>🎓 Qualifications</span>
+                  <span className="badge bg-amber">Scores visible · Names hidden</span>
+                </div>
+                <div className="g3" style={{gap:10}}>
+                  {[['10th %',p.qualifications.tenth_percentage+'%',true],['12th %',p.qualifications.twelfth_percentage+'%',true],['CGPA',p.qualifications.cgpa,true],['Degree',p.qualifications.degree||'—',true],['Branch',p.qualifications.branch||'—',true],['College',p.qualifications.college_name||'—',false],].map(([k,v,vis])=>(
+                    <div key={k} style={{padding:'12px 14px',background:'rgba(255,255,255,.04)',borderRadius:10,border:`1px solid ${vis?'var(--border)':'rgba(244,63,94,.15)'}`}}>
+                      <div style={{fontSize:10,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'.06em',marginBottom:4}}>{k}</div>
+                      <div className="ub" style={{fontSize:15,fontWeight:700}}>{v}</div>
+                      <div style={{marginTop:5,fontSize:10,color:vis?'var(--green)':'var(--red)',fontWeight:600}}>{vis?'✓ HR can see':'🔒 Hidden'}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Skills */}
+            {p.skills.length>0&&(
+              <div className="card fu fu3" style={{padding:26,marginBottom:16}}>
+                <div className="row jb mb16">
+                  <span className="slbl s-cyan" style={{fontSize:11}}>⚡ Skills & AI Verification</span>
+                  <span className="badge bg-indigo">Gemini Verified</span>
+                </div>
+                <div style={{display:'flex',flexWrap:'wrap',gap:10}}>
+                  {p.skills.map(s=>(
+                    <span key={s.skill_name} className={`sk-chip ${s.is_verified?'sk-v':'sk-u'}`}>
+                      {s.skill_name} {s.is_verified?'✅':'⚠️'} <span style={{fontSize:11,opacity:.7}}>{s.confidence?.toFixed(0)}%</span>
+                    </span>
+                  ))}
+                </div>
+                {p.skills.some(s=>s.notes)&&<div style={{marginTop:14}}>{p.skills.filter(s=>s.notes).map(s=>(
+                  <div key={s.skill_name} style={{fontSize:12.5,color:'var(--muted)',padding:'7px 12px',background:'rgba(255,255,255,.03)',borderRadius:8,marginBottom:4,border:'1px solid var(--border)'}}>
+                    <strong style={{color:'var(--text)'}}>{s.skill_name}:</strong> {s.notes}
+                  </div>
+                ))}</div>}
+              </div>
+            )}
+            {/* Experience */}
+            {p.experience.length>0&&(
+              <div className="card fu fu4" style={{padding:26}}>
+                <div className="row jb mb16">
+                  <span className="slbl s-amber" style={{fontSize:11}}>💼 Experience</span>
+                  <span className="badge bg-red">Company names private</span>
+                </div>
+                {p.experience.map((e,i)=>(
+                  <div key={i} className="ecrd">
+                    <div className="row jb">
+                      <strong style={{fontSize:14}}>{e.role||'—'}</strong>
+                      <span className="ta ub fw7" style={{fontSize:13}}>{Math.floor((e.duration_months||0)/12)}y {(e.duration_months||0)%12}m</span>
+                    </div>
+                    {e.description&&<p style={{fontSize:13,color:'var(--muted)',marginTop:5}}>{e.description}</p>}
+                    <div style={{marginTop:6,fontSize:11,color:'var(--red)',fontWeight:600}}>🔒 Company name not shared with HR</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* Score sidebar */}
+          {sc&&(
+            <div className="card spanel fu fu2">
+              <h3 className="ub" style={{fontSize:14,fontWeight:700,marginBottom:18}}>📊 Score Breakdown</h3>
+              <div className="final-disp">
+                <div className="ub fnum" style={{color:cc}}>{sc.final_score?.toFixed(1)}</div>
+                <div style={{fontSize:12,color:'var(--muted)',marginTop:3}}>Final Score / 100</div>
+                <div style={{marginTop:10}}><span className={`badge ${cb}`}>{sc.confidence_level} Confidence</span></div>
+                <div style={{marginTop:12}}><div className="pbar"><div className="pfill" style={{width:sc.final_score+'%',background:cc}}/></div></div>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-around',flexWrap:'wrap',gap:12,marginBottom:18}}>
+                <Gauge label="Academic"   value={sc.academic_score}     color="var(--cyan)"/>
+                <Gauge label="Skills"     value={sc.skill_score}        color="var(--violet)"/>
+                <Gauge label="Verified"   value={sc.verification_score} color="var(--green)"/>
+                <Gauge label="Experience" value={sc.experience_score}   color="var(--amber)"/>
+              </div>
+              <div className="hdiv"/>
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {[['Academic Score',sc.academic_score,'var(--cyan)'],['Skill Score',sc.skill_score,'var(--violet)'],['Verification',sc.verification_score,'var(--green)'],['Experience',sc.experience_score,'var(--amber)']].map(([l,v,c])=>(
+                  <div key={l}>
+                    <div className="row jb mb4"><span style={{fontSize:12,color:'var(--muted)'}}>{l}</span><strong style={{fontSize:13,color:c,fontFamily:'Unbounded,sans-serif'}}>{v?.toFixed(1)}</strong></div>
+                    <div className="pbar"><div className="pfill" style={{width:v+'%',background:c}}/></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── HR Login ── */
+function HRLogin({setPage,showToast,setAuth}){
+  const [u,setU]=useState('hr@fairhire.com');
+  const [pw,setPw]=useState('hr123');
+  const [loading,setLoading]=useState(false);
+  async function login(){
+    setLoading(true);
+    try{
+      const r=await api('/hr/login',{method:'POST',body:JSON.stringify({username:u,password:pw})});
+      localStorage.setItem('fh_token',r.token);
+      localStorage.setItem('fh_type','hr');
+      setAuth(r.token,'hr');
+      setPage('hr-dashboard');
+      showToast('HR dashboard access granted','success');
+    }catch(e){showToast(e.message,'error');}
+    setLoading(false);
+  }
+  return(
+    <div className="page" style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{width:'100%',maxWidth:440}}>
+        <div className="card stin" style={{padding:40}}>
+          <div style={{textAlign:'center',marginBottom:28}}>
+            <div style={{width:62,height:62,borderRadius:16,background:'linear-gradient(135deg,var(--indigo),var(--violet))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,margin:'0 auto 16px'}}>🏢</div>
+            <h1 className="ub" style={{fontSize:22,fontWeight:900,marginBottom:6}}>HR Portal</h1>
+            <p className="tm" style={{fontSize:13.5}}>Anonymized candidate evaluation</p>
+          </div>
+          <div className="hdiv"/>
+          <div style={{marginTop:20}}>
+            <div className="field"><label>Username / Email</label><div className="inp-wrap"><span className="ic">🏢</span><input className="inp" type="email" value={u} onChange={e=>setU(e.target.value)}/></div></div>
+            <div className="field"><label>Password</label><div className="inp-wrap"><span className="ic">🔑</span><input className="inp" type="password" value={pw} onChange={e=>setPw(e.target.value)} onKeyDown={e=>e.key==='Enter'&&login()}/></div></div>
+          </div>
+          <div style={{background:'rgba(99,102,241,.08)',border:'1px solid rgba(99,102,241,.2)',borderRadius:10,padding:'10px 14px',fontSize:12.5,color:'#a5b4fc',marginBottom:16}}>
+            <strong>Demo credentials:</strong> hr@fairhire.com / hr123
+          </div>
+          <button className="btn btn-indigo" style={{width:'100%',padding:13,fontSize:15}} onClick={login} disabled={loading}>
+            {loading?<span className="sp"/>:null} Access HR Dashboard
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── HR Dashboard ── */
+function HRDashboard({showToast}){
+  const [cands,setCands]=useState([]);
+  const [sel,setSel]=useState(null);
+  const [det,setDet]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [dlLoad,setDlLoad]=useState(false);
+  const [sort,setSort]=useState('finalScore');
+  const [cf,setCf]=useState('All');
+  const [search,setSearch]=useState('');
+
+  useEffect(()=>{api('/hr/candidates').then(setCands).catch(e=>showToast(e.message,'error')).finally(()=>setLoading(false));}, []);
+
+  async function selectC(cid){
+    setSel(cid);setDet(null);
+    try{setDet(await api('/hr/candidate/'+cid));}catch(e){showToast(e.message,'error');}
+  }
+
+  async function dlReport(cid){
+    setDlLoad(true);
+    try{
+      const tk=localStorage.getItem('fh_token');
+      const res=await fetch(BASE+'/hr/report/'+cid,{headers:{Authorization:'Bearer '+tk}});
+      if(!res.ok)throw new Error('Report failed');
+      const blob=await res.blob();
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download=`FairHire_${cid}.pdf`;a.click();
+      URL.revokeObjectURL(url);
+      showToast('PDF report downloaded!','success');
+    }catch(e){showToast(e.message,'error');}
+    setDlLoad(false);
+  }
+
+  const filtered=[...cands]
+    .filter(c=>cf==='All'||c.confidenceLevel===cf)
+    .filter(c=>!search||c.candidateId.toLowerCase().includes(search.toLowerCase()))
+    .sort((a,b)=>(b[sort]||0)-(a[sort]||0));
+
+  const st={total:cands.length,high:cands.filter(c=>c.confidenceLevel==='High').length,med:cands.filter(c=>c.confidenceLevel==='Medium').length,avg:cands.length?+(cands.reduce((a,c)=>a+(c.finalScore||0),0)/cands.length).toFixed(1):0};
+
+  return(
+    <div className="page">
+      <div className="ctr">
+        <div className="row jb wrap g12 mb24 fu">
+          <div>
+            <h1 className="ub" style={{fontSize:24,fontWeight:900}}>HR Evaluation Dashboard</h1>
+            <p className="tm mt4" style={{fontSize:13.5}}>All candidate identities are anonymized. Evaluate on pure merit.</p>
+          </div>
+          <div className="row g8 wrap">
+            <input className="inp" placeholder="Search by ID…" style={{width:145,padding:'9px 14px',fontSize:13}} value={search} onChange={e=>setSearch(e.target.value)}/>
+            <select className="inp" style={{width:130,fontSize:13,padding:'9px 14px'}} value={cf} onChange={e=>setCf(e.target.value)}>
+              <option>All</option><option>High</option><option>Medium</option><option>Low</option>
+            </select>
+            <select className="inp" style={{width:170,fontSize:13,padding:'9px 14px'}} value={sort} onChange={e=>setSort(e.target.value)}>
+              <option value="finalScore">↓ Final Score</option>
+              <option value="academicScore">↓ Academic</option>
+              <option value="skillScore">↓ Skills</option>
+              <option value="experienceYears">↓ Experience</option>
+            </select>
+          </div>
+        </div>
+        <div className="g4 mb20 fu fu1">
+          {[{l:'Total Candidates',v:st.total,c:'var(--cyan)',li:'linear-gradient(90deg,var(--cyan),var(--indigo))'},{l:'High Confidence',v:st.high,c:'var(--green)',li:'var(--green)'},{l:'Medium Confidence',v:st.med,c:'var(--amber)',li:'var(--amber)'},{l:'Avg Final Score',v:st.avg,c:'#c4b5fd',li:'linear-gradient(90deg,var(--violet),var(--pink))'},].map(s=>(
+            <div key={s.l} className="card sc" style={{position:'relative',overflow:'hidden'}}>
+              <div className="grid-bg"/>
+              <div className="sc-num" style={{color:s.c,fontSize:26}}>{s.v}</div>
+              <div className="sc-lbl">{s.l}</div>
+              <div className="sc-line" style={{background:s.li}}/>
+            </div>
+          ))}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:sel?'1fr 370px':'1fr',gap:16,alignItems:'start'}}>
+          <div className="card fu fu2" style={{overflow:'hidden'}}>
+            {loading
+              ?<div style={{padding:60,textAlign:'center'}}><span className="sp" style={{width:32,height:32,borderWidth:3,margin:'auto'}}/></div>
+              :filtered.length===0
+                ?<div style={{padding:60,textAlign:'center',color:'var(--muted)',fontSize:15}}>No verified candidates yet.</div>
+                :<table className="tbl">
+                  <thead><tr><th>ID</th><th>10th</th><th>12th</th><th>CGPA</th><th>Verified Skills</th><th>Exp</th><th>Score</th><th>Confidence</th><th></th></tr></thead>
+                  <tbody>
+                    {filtered.map(c=>(
+                      <tr key={c.candidateId} onClick={()=>selectC(c.candidateId)} className={sel===c.candidateId?'sel':''}>
+                        <td><strong className="ub tc" style={{fontSize:12.5}}>{c.candidateId}</strong></td>
+                        <td>{c.tenthPercentage??'—'}%</td>
+                        <td>{c.twelfthPercentage??'—'}%</td>
+                        <td><strong>{c.cgpa??'—'}</strong></td>
+                        <td>
+                          <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                            {(c.skills||[]).slice(0,3).map(s=>(
+                              <span key={s.name} style={{fontSize:10.5,padding:'2px 8px',borderRadius:6,fontWeight:600,background:s.verified?'rgba(16,185,129,.1)':'rgba(245,158,11,.1)',color:s.verified?'var(--green)':'var(--amber)',border:`1px solid ${s.verified?'rgba(16,185,129,.22)':'rgba(245,158,11,.22)'}`}}>
+                                {s.name} {s.verified?'✓':'⚠'}
+                              </span>
+                            ))}
+                            {(c.skills?.length||0)>3&&<span style={{fontSize:10,color:'var(--muted)'}}>+{c.skills.length-3}</span>}
+                          </div>
+                        </td>
+                        <td>{c.experienceYears??0}yr</td>
+                        <td><strong className="ub" style={{fontSize:13.5,color:(c.finalScore||0)>=75?'var(--green)':(c.finalScore||0)>=50?'var(--amber)':'var(--red)'}}>{c.finalScore?.toFixed(1)??'—'}</strong></td>
+                        <td><span className={`badge ${c.confidenceLevel==='High'?'bg-green':c.confidenceLevel==='Medium'?'bg-amber':'bg-red'}`} style={{fontSize:10}}>{c.confidenceLevel||'—'}</span></td>
+                        <td><button className="btn btn-glass btn-xs" onClick={e=>{e.stopPropagation();dlReport(c.candidateId);}} disabled={dlLoad}>{dlLoad?'…':'⬇ PDF'}</button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+            }
+          </div>
+          {sel&&(
+            <div className="card slr" style={{padding:24,position:'sticky',top:80}}>
+              <div className="row jb mb12">
+                <div><div style={{fontSize:11,color:'var(--muted)',letterSpacing:'.06em',textTransform:'uppercase',marginBottom:3}}>Candidate</div><strong className="ub tc" style={{fontSize:15}}>{sel}</strong></div>
+                <button className="btn btn-glass btn-xs" onClick={()=>{setSel(null);setDet(null);}}>✕</button>
+              </div>
+              <div className="hdiv" style={{margin:'10px 0'}}/>
+              {!det
+                ?<div style={{textAlign:'center',padding:40}}><span className="sp" style={{width:28,height:28,margin:'auto'}}/></div>
+                :(<>
+                  {det.score&&(<>
+                    <div className="final-disp mb16">
+                      <div className="ub fnum" style={{fontSize:42,color:det.score.confidence_level==='High'?'var(--green)':det.score.confidence_level==='Medium'?'var(--amber)':'var(--red)'}}>{det.score.final_score?.toFixed(1)}</div>
+                      <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>Final Score / 100</div>
+                      <span className={`badge ${det.score.confidence_level==='High'?'bg-green':det.score.confidence_level==='Medium'?'bg-amber':'bg-red'}`} style={{marginTop:8,display:'inline-flex'}}>{det.score.confidence_level} Confidence</span>
+                    </div>
+                    <div style={{display:'flex',justifyContent:'space-around',gap:8,flexWrap:'wrap',marginBottom:14}}>
+                      <Gauge label="Academic" value={det.score.academic_score} color="var(--cyan)" size={60}/>
+                      <Gauge label="Skills" value={det.score.skill_score} color="var(--violet)" size={60}/>
+                      <Gauge label="Experience" value={det.score.experience_score} color="var(--amber)" size={60}/>
+                    </div>
+                  </>)}
+                  {det.qualifications&&(<>
+                    <div className="slbl s-cyan" style={{fontSize:10,marginBottom:8}}>Academic Scores</div>
+                    <div className="g2" style={{gap:8,marginBottom:14}}>
+                      {[['10th',det.qualifications.tenth_percentage+'%'],['12th',det.qualifications.twelfth_percentage+'%'],['CGPA',det.qualifications.cgpa],['Degree',det.qualifications.degree],['Branch',det.qualifications.branch]].map(([k,v])=>(
+                        <div key={k} style={{padding:'8px 11px',background:'rgba(255,255,255,.04)',borderRadius:8}}>
+                          <div style={{fontSize:9.5,color:'var(--muted)',marginBottom:2,textTransform:'uppercase',letterSpacing:'.05em'}}>{k}</div>
+                          <div style={{fontSize:13,fontWeight:600}}>{v||'—'}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>)}
+                  {det.skills?.length>0&&(<>
+                    <div className="slbl s-cyan" style={{fontSize:10,marginBottom:8}}>Skills</div>
+                    {det.skills.map(s=>(
+                      <div key={s.skill_name} className="row jb" style={{padding:'7px 11px',background:'rgba(255,255,255,.04)',borderRadius:8,marginBottom:5}}>
+                        <span style={{fontSize:13,fontWeight:500}}>{s.skill_name}</span>
+                        <div className="row g8"><span style={{fontSize:11,color:'var(--muted)'}}>{s.confidence?.toFixed(0)}%</span><span>{s.is_verified?'✅':'⚠️'}</span></div>
+                      </div>
+                    ))}
+                  </>)}
+                  {det.experience?.length>0&&(<>
+                    <div className="slbl s-amber" style={{fontSize:10,marginBottom:8,marginTop:12}}>Experience</div>
+                    {det.experience.map((e,i)=>(
+                      <div key={i} className="ecrd" style={{marginBottom:6}}>
+                        <div className="row jb"><span style={{fontSize:13,fontWeight:600}}>{e.role||'—'}</span><span className="ta ub fw7" style={{fontSize:12}}>{e.duration_months}m</span></div>
+                      </div>
+                    ))}
+                  </>)}
+                  <div className="hdiv"/>
+                  <button className="btn btn-indigo" style={{width:'100%'}} onClick={()=>dlReport(sel)} disabled={dlLoad}>
+                    {dlLoad?<span className="sp"/>:'⬇'} Download PDF Report
+                  </button>
+                </>)}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── App Root ── */
+function App(){
+  const [page,setPage]=useState('landing');
+  const [token,setToken]=useState(localStorage.getItem('fh_token'));
+  const [userType,setUType]=useState(localStorage.getItem('fh_type'));
+  const [toast,setToast]=useState(null);
+  function setAuth(t,type){setToken(t);setUType(type);}
+  function logout(){['fh_token','fh_type','fh_cid'].forEach(k=>localStorage.removeItem(k));setToken(null);setUType(null);setPage('landing');}
+  function showToast(msg,type='success'){setToast({msg,type,key:Date.now()});}
+  const P={setPage,showToast,setAuth,token,userType};
+  return(<>
+    <Nav page={page} setPage={setPage} token={token} userType={userType} onLogout={logout}/>
+    {page==='landing'            &&<Landing {...P}/>}
+    {page==='candidate-register' &&<CandidateRegister {...P}/>}
+    {page==='candidate-login'    &&<CandidateLogin {...P}/>}
+    {page==='candidate-dashboard'&&<CandidateDashboard {...P}/>}
+    {page==='hr-login'           &&<HRLogin {...P}/>}
+    {page==='hr-dashboard'       &&<HRDashboard {...P}/>}
+    {toast&&<Toast key={toast.key} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
+  </>);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
