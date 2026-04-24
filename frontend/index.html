@@ -284,12 +284,20 @@ select.inp option{background:#0a1020;}
 const {useState,useEffect,useRef} = React;
 const BASE = 'https://fairhire-backend-qbu8.onrender.com/api';
 
-async function api(path,opts={}){
-  const tk=localStorage.getItem('fh_token');
-  const res=await fetch(BASE+path,{headers:{'Content-Type':'application/json',...(tk?{Authorization:'Bearer '+tk}:{})}, ...opts});
-  const d=await res.json().catch(()=>({}));
-  if(!res.ok)throw new Error(d.error||'Request failed');
-  return d;
+async function api(path, opts = {}) {
+  const res = await fetch(BASE + path, {
+   method: opts.method ? opts.method : 'POST'
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: opts.body || null         // ✅ IMPORTANT FIX
+  });
+
+  if (!res.ok) {
+    throw new Error('Request failed');
+  }
+
+  return res.json();
 }
 function b64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f);});}
 
