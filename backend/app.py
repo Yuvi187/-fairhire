@@ -14,12 +14,11 @@ from datetime import datetime
 from functools import wraps
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-
-CORS(app)
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
