@@ -17,7 +17,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-CORS(app, origins="*")
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'fairhire.db')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
