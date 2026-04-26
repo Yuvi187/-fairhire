@@ -879,8 +879,10 @@ Reply ONLY with valid JSON, no markdown:
 # ENTRY POINT
 # ─────────────────────────────────────────────
 
+init_db()
+
 if __name__ == '__main__':
-    init_db()
+    init_db() 
     print('\n' + '='*55)
     print('  FairHire Backend  →  http://localhost:5000')
     print('  HR Login     →  hr@fairhire.com    / hr123')
