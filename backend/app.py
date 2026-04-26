@@ -17,7 +17,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, origins="*")
 
 DB_PATH = os.path.join(os.path.dirname(__file__), 'fairhire.db')
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
@@ -199,7 +199,7 @@ def require_admin(f):
 
 @app.route('/api/candidate/register', methods=['POST'])
 def candidate_register():
-    d = request.get_json(silent=True) or {}
+    d = request.json or {}
     if not d.get('email') or not d.get('password') or not d.get('fullName'):
         return jsonify({'error': 'fullName, email and password are required'}), 400
 
@@ -235,7 +235,7 @@ def candidate_register():
 
 @app.route('/api/candidate/login', methods=['POST'])
 def candidate_login():
-    d = request.get_json(silent=True) or {}
+    d = request.json or {}
     with get_db() as conn:
         row = conn.execute('SELECT * FROM candidates WHERE email=?', (d.get('email', ''),)).fetchone()
     if not row or not check_password_hash(row['password_hash'], d.get('password', '')):
@@ -429,7 +429,7 @@ def candidate_profile():
 
 @app.route('/api/hr/login', methods=['POST'])
 def hr_login():
-    d = request.get_json(silent=True) or {}
+    d = request.json or {}
     with get_db() as conn:
         row = conn.execute('SELECT * FROM hr_users WHERE username=?', (d.get('username', ''),)).fetchone()
     if not row or not check_password_hash(row['password_hash'], d.get('password', '')):
@@ -510,7 +510,7 @@ def hr_candidate_detail(cid):
 @require_hr
 def hr_shortlist(cid):
     """HR shortlists a candidate. Admin can then see full contact info."""
-    d = request.get_json(silent=True) or {}
+    d = request.json or {}
     note = d.get('note', '')
     with get_db() as conn:
         row = conn.execute('SELECT id FROM candidates WHERE id=?', (cid,)).fetchone()
@@ -660,7 +660,7 @@ def download_report(cid):
 
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
-    d = request.get_json(silent=True) or {}
+    d = request.json or {}
     with get_db() as conn:
         row = conn.execute('SELECT * FROM admin_users WHERE username=?', (d.get('username', ''),)).fetchone()
     if not row or not check_password_hash(row['password_hash'], d.get('password', '')):
