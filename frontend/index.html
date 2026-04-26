@@ -478,59 +478,45 @@ function CandidateRegister({setPage,showToast,setAuth}){
 
   // STEP 0: Identity
   async function s0(){
-  if(!id.fullName || !id.email || !id.password){
-    showToast('Name, Email and Password are required','error');
-    return;
-  }
-  if(!id.dob){
-    showToast('Date of Birth is required','error');
-    return;
-  }
-  if(id.password.length < 6){
-    showToast('Password must be at least 6 characters','error');
-    return;
-  }
-  if(id.password !== id.confirm){
-    showToast('Passwords do not match','error');
-    return;
+    if(!id.fullName||!id.email||!id.password){showToast('Name, Email and Password are required','error');return;}
+    if(!id.dob){showToast('Date of Birth is required','error');return;}
+    if(id.password.length<6){showToast('Password must be at least 6 characters','error');return;}
+    if(id.password!==id.confirm){showToast('Passwords do not match','error');return;}
+    if(!photo){showToast('Please upload your photo (JPG)','error');return;}
+    if(!sig){showToast('Please upload your signature (JPG)','error');return;}
+    setLoading(true);
+    try{
+      const photoData=await b64(photo);
+      const sigData=await b64(sig);
+      await api('/candidate/register',{method:'POST',body:JSON.stringify({
+        fullName:id.fullName,email:id.email,phone:id.phone,dob:id.dob,
+        address:id.address,password:id.password,
+        govIdType:id.govIdType,govIdNumber:id.govIdNumber,
+        photoData,signatureData:sigData
+      })});
+      const lg=await api('/candidate/login',{method:'POST',body:JSON.stringify({email:id.email,password:id.password})});
+      localStorage.setItem('fh_token',lg.token);
+      localStorage.setItem('fh_type','candidate');
+      localStorage.setItem('fh_cid',lg.candidateId);
+      setCid(lg.candidateId);
+      setAuth(lg.token,'candidate');
+      setStep(1);
+      showToast(`Welcome ${id.fullName.split(' ')[0]}! Proceed to qualifications.`,'success');
+    }catch(e){showToast(e.message,'error');}
+    setLoading(false);
   }
 
-  setLoading(true);
-  try{
-    await api('/candidate/register',{
-      method:'POST',
-      body:JSON.stringify({
-        fullName:id.fullName,
-        email:id.email,
-        phone:id.phone,
-        dob:id.dob,
-        address:id.address,
-        password:id.password,
-        govIdType:id.govIdType,
-        govIdNumber:id.govIdNumber
-      })
-    });
-
-    const lg = await api('/candidate/login',{
-      method:'POST',
-      body:JSON.stringify({
-        email:id.email,
-        password:id.password
-      })
-    });
-
-    localStorage.setItem('fh_token', lg.token);
-    localStorage.setItem('fh_type', 'candidate');
-    localStorage.setItem('fh_cid', lg.candidateId);
-    setCid(lg.candidateId);
-    setAuth(lg.token, 'candidate');
-    setStep(1);
-    showToast(`Welcome ${id.fullName.split(' ')[0]}! Proceed to qualifications.`,'success');
-  }catch(e){
-    showToast(e.message,'error');
+  // STEP 1: Qualifications
+  async function s1(){
+    if(!q.tenthPercentage||!q.twelfthPercentage||!q.cgpa){showToast('Please fill all percentage and CGPA fields','error');return;}
+    setLoading(true);
+    try{
+      await api('/candidate/qualifications',{method:'POST',body:JSON.stringify(q)});
+      setStep(2);
+      showToast('Qualifications saved!','success');
+    }catch(e){showToast(e.message,'error');}
+    setLoading(false);
   }
-  setLoading(false);
-}
 
   // STEP 2: Documents
   async function s2(){
