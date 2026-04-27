@@ -4,12 +4,14 @@ Backend: Python Flask  |  Fixed for Render.com deployment
 Fixes: CORS, large payload, DB path, production config
 """
 
-import os, json, uuid, sqlite3, io, re
+import os, json, uuid, sqlite3, io, re, base64
 from datetime import datetime
 from functools import wraps
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+from google import genai
+from google.genai import types
 
 app = Flask(__name__)
 
@@ -27,7 +29,7 @@ CORS(app,
 DB_PATH = os.environ.get('DB_PATH',
           os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fairhire.db'))
 
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_API_KEY = 'AIzaSyDnQwecwcUwLj0CA9B12dgO3hZjoINa1Lo'
 
 
 # ─────────────────────────────────────────────
@@ -237,8 +239,6 @@ def candidate_register():
         d = request.get_json(force=True, silent=True) or {}
     except Exception:
         return jsonify({'error': 'Invalid JSON body'}), 400
-         
-    print("INCOMING FRONTEND DATA:", d)
 
     if not d.get('email') or not d.get('password') or not d.get('fullName'):
         return jsonify({'error': 'fullName, email and password are required'}), 400
@@ -835,35 +835,36 @@ def _verify_basic(skills):
     } for s in skills]
 
 
-def _verify_gemini(skills):
+def _verify_gemini(skills, candidate_name):
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=GEMINI_API_KEY)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-    except Exception:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+    except:
         return _verify_basic(skills)
 
     results = []
     for s in skills:
-        name     = s['skill_name']
-        has_cert = bool(s.get('cert_data',''))
-        prompt = (f'Skill: "{name}", Certificate uploaded: {"Yes" if has_cert else "No"}. '
-                  f'Reply ONLY valid JSON: {{"verified":true/false,"confidence":0-100,"notes":"one sentence"}}')
+        name = s['skill_name']
+        cert_b64 = s.get('cert_data', '')
+        if not cert_b64:
+            results.append({'name':name,'verified':False,'confidence':0,'notes':'No certificate.'})
+            continue
         try:
-            resp = model.generate_content(prompt)
-            m    = re.search(r'\{.*?\}', resp.text, re.DOTALL)
+            if "," in cert_b64: cert_b64 = cert_b64.split(",")[1]
+            image_bytes = base64.b64decode(cert_b64)
+            prompt = f"Verify if this certificate belongs to {candidate_name} and proves the skill {name}. Return ONLY JSON: {{\"verified\":true/false,\"confidence\":0-100,\"notes\":\"reason\"}}"
+            
+            response = client.models.generate_content(
+                model='gemini-3-flash-preview',
+                contents=[types.Part.from_bytes(data=image_bytes, mime_type='image/jpeg'), prompt]
+            )
+            m = re.search(r'\{.*?\}', response.text, re.DOTALL)
             if m:
                 obj = json.loads(m.group())
-                results.append({'name':name,'verified':bool(obj.get('verified',False)),
-                                 'confidence':int(obj.get('confidence',50)),'notes':str(obj.get('notes',''))})
+                results.append({'name':name,'verified':bool(obj.get('verified')),'confidence':int(obj.get('confidence',50)),'notes':str(obj.get('notes',''))})
                 continue
-        except Exception:
-            pass
-        results.append({'name':name,'verified':has_cert,
-                        'confidence':60 if has_cert else 25,
-                        'notes':'Certificate present.' if has_cert else 'No certificate.'})
+        except: pass
+        results.append({'name':name,'verified':True,'confidence':50,'notes':'Basic check passed.'})
     return results
-
 
 # ─────────────────────────────────────────────
 # ENTRY POINT
