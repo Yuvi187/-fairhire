@@ -237,6 +237,8 @@ def candidate_register():
         d = request.get_json(force=True, silent=True) or {}
     except Exception:
         return jsonify({'error': 'Invalid JSON body'}), 400
+         
+    print("INCOMING FRONTEND DATA:", d)
 
     if not d.get('email') or not d.get('password') or not d.get('fullName'):
         return jsonify({'error': 'fullName, email and password are required'}), 400
