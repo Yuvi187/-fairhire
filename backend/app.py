@@ -369,7 +369,7 @@ def save_skills():
             for sk in d.get('skills', []):
                 conn.execute(
                     'INSERT INTO skills (candidate_id, skill_name, cert_data) VALUES (?,?,?)',
-                    (cid, sk.get('name','').strip(), (sk.get('certData') or '')[:200_000])
+                    (cid, sk.get('name','').strip(), (sk.get('certData') or '')[:1_400_000]
                 )
             for ex in d.get('experience', []):
                 conn.execute(
