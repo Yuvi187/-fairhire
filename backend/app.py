@@ -26,7 +26,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 DB_PATH = os.environ.get('DB_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fairhire.db'))
 
 # ── YOUR API KEY ──
-GEMINI_API_KEY = 'AIzaSyDnQwecwcUwLj0CA9B12dgO3hZjoINa1Lo'
+GEMINI_API_KEY = 'AIzaSyAvbd_aW6Spu2JL4Cb9zz07fc_CrNuVnvU'
 
 # (Keep your _auto_init, handle_preflight, add_cors_headers, get_db, init_db, migrate_db, and Auth Helpers exactly as you had them)
 
